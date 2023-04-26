@@ -8,15 +8,9 @@ const axiosObject = axios.create({
     }
 });
 
-async function getTrendingMoviesPreview() {
-    const response = await fetch(`${URLAPI}/trending/movie/day?api_key=${ApiKeyV3}`);
-    const data = await response.json();
-
-    const movies = data.results;
-
-    // const trendingPreviewMovieContainer = document.querySelector('#trendingPreview .trendingPreview-movieList');
-
-    trendingMoviesPreviewList.innerHTML = '';
+//Utils
+function CreateMovies(movies, container) {
+    container.innerHTML = '';
 
     const moviesArray = movies.map(movie => {
         const movieContainer = document.createElement('div');
@@ -31,18 +25,11 @@ async function getTrendingMoviesPreview() {
 
         return movieContainer;
     });
-    trendingMoviesPreviewList.append(...moviesArray);
+    container.append(...moviesArray);
 }
 
-async function getTrendingCategoriesPreview() {
-    const response = await fetch(`${URLAPI}/genre/movie/list?api_key=${ApiKeyV3}`);
-    const data = await response.json();
-
-    const categories = data.genres;
-
-    // const PreviewCategoriesContainer = document.querySelector('#categoriesPreview .categoriesPreview-list');
-
-    categoriesPreviewList.innerHTML = '';
+function CreateCategories(categories, container) {
+    container.innerHTML = '';
 
     const categoryArray = categories.map(category => {
         const categoryContainer = document.createElement('div');
@@ -51,6 +38,7 @@ async function getTrendingCategoriesPreview() {
         const categoryTitle = document.createElement('h3');
         categoryTitle.classList.add('category-title');
         categoryTitle.setAttribute('id', `id${category.id}`);
+        categoryTitle.onclick = () => { location.hash = `#category=${category.id}-${category.name}` };
         const categoryTitleText = document.createTextNode(category.name);
 
         categoryTitle.appendChild(categoryTitleText);
@@ -59,54 +47,45 @@ async function getTrendingCategoriesPreview() {
 
         return categoryContainer;
     });
-    categoriesPreviewList.append(...categoryArray);
+    container.append(...categoryArray);
+}
+
+//Llamados API
+async function getTrendingMoviesPreview() {
+    const response = await fetch(`${URLAPI}/trending/movie/day?api_key=${ApiKeyV3}`);
+    const data = await response.json();
+
+    const movies = data.results;
+    CreateMovies(movies, trendingMoviesPreviewList);
+}
+
+async function getTrendingCategoriesPreview() {
+    const response = await fetch(`${URLAPI}/genre/movie/list?api_key=${ApiKeyV3}`);
+    const data = await response.json();
+    const categories = data.genres;    
+    CreateCategories(categories, categoriesPreviewList);
 }
 
 async function getTrendingMoviesPreviewAxios() {
     const { data } = await axiosObject('/trending/movie/day')
     const movies = data.results;
-
-    trendingMoviesPreviewList.innerHTML = '';
-
-    const moviesArray = movies.map(movie => {
-        const movieContainer = document.createElement('div');
-        movieContainer.classList.add('movie-container');
-
-        const movieImg = document.createElement('img');
-        movieImg.classList.add('movie-img');
-        movieImg.setAttribute('alt', movie.title);
-        movieImg.setAttribute('src', `${URLImagesPost}/${movie.poster_path}`);
-
-        movieContainer.appendChild(movieImg);
-
-        return movieContainer;
-    });
-    trendingMoviesPreviewList.append(...moviesArray);
+    CreateMovies(movies, trendingMoviesPreviewList);
 }
 
 async function getTrendingCategoriesPreviewAxios() {
     const { data } = await axiosObject('/genre/movie/list');
     const categories = data.genres;
 
-    // const PreviewCategoriesContainer = document.querySelector('#categoriesPreview .categoriesPreview-list');
+    CreateCategories(categories, categoriesPreviewList);
+}
 
-    categoriesPreviewList.innerHTML = '';
-
-    const categoryArray = categories.map(category => {
-        const categoryContainer = document.createElement('div');
-        categoryContainer.classList.add('category-container');
-
-        const categoryTitle = document.createElement('h3');
-        categoryTitle.classList.add('category-title');
-        categoryTitle.setAttribute('id', `id${category.id}`);
-        const categoryTitleText = document.createTextNode(category.name);
-
-        categoryTitle.appendChild(categoryTitleText);
-
-        categoryContainer.appendChild(categoryTitle);
-
-        return categoryContainer;
-    });
-    categoriesPreviewList.append(...categoryArray);
+async function getMoviesByCategory(idCategory) {
+    const { data } = await axiosObject('/discover/movie?', {
+        params: {
+            with_genres: idCategory
+        }
+    })
+    const movies = data.results;
+    CreateMovies(movies, genericSection);
 }
 

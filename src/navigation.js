@@ -28,6 +28,9 @@ function navigator() {
     } else {
         homePage();
     }
+    // window.scrollTop = 0;
+    //document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
 }
 
 function homePage() {
@@ -62,6 +65,11 @@ function categoriesPage() {
     categoriesPreviewSection.classList.add('inactive');
     genericSection.classList.remove('inactive');
     movieDetailSection.classList.add('inactive');
+
+    const [_, categoryData] = location.hash.split('=');
+    const [idCategory, nameCategory] = categoryData.split('-');
+    headerCategoryTitle.textContent = decodeURIComponent(nameCategory); //La funcións se por si la palabra viene con espacios y le borra el separador %20
+    getMoviesByCategory(idCategory);
 }
 
 function movieDetailsPage() {
