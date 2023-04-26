@@ -131,3 +131,6 @@ dist
 
 #Secrets.js Contiene el APIKey
 src/secrets.js
+
+#diploma
+diploma-api-practico.pdf
